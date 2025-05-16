@@ -295,13 +295,13 @@ void CPad::UpdateMouse() {
         if (PSGLOBAL(diMouse) && SUCCEEDED(CPad::GetMouseState(&mouseState))) {
             TempMouseControllerState.m_AmountMoved.x = static_cast<float>(invertX * mouseState.lX);
             TempMouseControllerState.m_AmountMoved.y = static_cast<float>(invertY * mouseState.lY);
-            TempMouseControllerState.isMouseWheelMovedUp = (mouseState.lZ > 0);
-            TempMouseControllerState.isMouseWheelMovedDown = (mouseState.lZ < 0);
-            TempMouseControllerState.isMouseLeftButtonPressed = (mouseState.rgbButtons[0] & 0x80) != 0;
-            TempMouseControllerState.isMouseRightButtonPressed = (mouseState.rgbButtons[1] & 0x80) != 0;
-            TempMouseControllerState.isMouseMiddleButtonPressed = (mouseState.rgbButtons[2] & 0x80) != 0;
-            TempMouseControllerState.isMouseFirstXPressed = (mouseState.rgbButtons[3] & 0x80) != 0;
-            TempMouseControllerState.isMouseSecondXPressed = (mouseState.rgbButtons[4] & 0x80) != 0;
+            TempMouseControllerState.m_bWheelMovedUp = (mouseState.lZ > 0);
+            TempMouseControllerState.m_bWheelMovedDown = (mouseState.lZ < 0);
+            TempMouseControllerState.m_bLeftButton = (mouseState.rgbButtons[0] & 0x80) != 0;
+            TempMouseControllerState.m_bRightButton = (mouseState.rgbButtons[1] & 0x80) != 0;
+            TempMouseControllerState.m_bMiddleButton = (mouseState.rgbButtons[2] & 0x80) != 0;
+            TempMouseControllerState.m_bMsFirstXButton = (mouseState.rgbButtons[3] & 0x80) != 0;
+            TempMouseControllerState.m_bMsSecondXButton = (mouseState.rgbButtons[4] & 0x80) != 0;
             OldMouseControllerState = std::exchange(NewMouseControllerState, TempMouseControllerState);
 
             if (NewMouseControllerState.CheckForInput()) {
@@ -326,8 +326,8 @@ void CPad::UpdateMouse() {
 
     // Clear the temporary SDL state delta values
     TempMouseControllerState.m_AmountMoved.Reset();
-    TempMouseControllerState.isMouseWheelMovedDown = false;
-    TempMouseControllerState.isMouseWheelMovedUp = false;
+    TempMouseControllerState.m_bWheelMovedDown = false;
+    TempMouseControllerState.m_bWheelMovedUp = false;
 #endif
 }
 
@@ -1400,7 +1400,7 @@ bool CPad::GetAnaloguePadDown() {
 }
 
 // 0x540530
-bool CPad::sub_540530() const noexcept {
+bool CPad::CycleCameraModeJustDown() const noexcept { // TODO: Check if it's correct
     switch (Mode) {
     case 0:
     case 2:

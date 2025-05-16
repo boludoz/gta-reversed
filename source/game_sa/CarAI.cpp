@@ -1091,7 +1091,7 @@ void CCarAI::UpdateCarAI(CVehicle* veh) {
     // 0x41E2A5 [It's actually here, not inside the switch]
     if (veh->vehicleFlags.bIsLawEnforcer) {
         if (FindPlayerWanted()->GetWantedLevel() >= 1) {
-            if (CCullZones::CurrentFlags_Player & eZoneAttributes::CAM_CLOSE_IN_FOR_PLAYER) {
+            if (CCullZones::CurrentFlags_Player & eZoneAttributes::ZONE_ATTRIBUTE_CAMCLOSEIN_FORPLAYER) {
                 TellOccupantsToLeaveCar(veh);
                 ap->SetCarMission(MISSION_NONE);
                 ap->SetCruiseSpeed(0);

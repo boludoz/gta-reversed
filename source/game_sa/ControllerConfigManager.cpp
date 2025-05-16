@@ -755,20 +755,20 @@ void CControllerConfigManager::InitDefaultControlConfigMouse(const CMouseControl
 #endif
 
     m_MouseFoundInitSet = false;
-    if (MouseSetUp.isMouseLeftButtonPressed || isForcedMouseBlinding) {
+    if (MouseSetUp.m_bLeftButton || isForcedMouseBlinding) {
         m_MouseFoundInitSet = true;
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_PED_FIRE_WEAPON,            rsMOUSE_LEFT_BUTTON);
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_VEHICLE_FIRE_WEAPON,        rsMOUSE_LEFT_BUTTON);
     }
-    if (MouseSetUp.isMouseRightButtonPressed || isForcedMouseBlinding) {                                                      
+    if (MouseSetUp.m_bRightButton || isForcedMouseBlinding) {                                                      
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_PED_LOCK_TARGET,            rsMOUSE_RIGHT_BUTTON);
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_VEHICLE_MOUSELOOK,          rsMOUSE_RIGHT_BUTTON);
     }
-    if (MouseSetUp.isMouseMiddleButtonPressed || isForcedMouseBlinding) {                                                      
+    if (MouseSetUp.m_bMiddleButton || isForcedMouseBlinding) {                                                      
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_VEHICLE_LOOKBEHIND,         rsMOUSE_MIDDLE_BUTTON);
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_PED_LOOKBEHIND,             rsMOUSE_MIDDLE_BUTTON);
     }
-    if (MouseSetUp.isMouseWheelMovedUp || MouseSetUp.isMouseWheelMovedDown || isForcedMouseBlinding) {
+    if (MouseSetUp.m_bWheelMovedUp || MouseSetUp.m_bWheelMovedDown || isForcedMouseBlinding) {
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_PED_CYCLE_WEAPON_LEFT,      rsMOUSE_WHEEL_UP_BUTTON);
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_PED_CYCLE_WEAPON_RIGHT,     rsMOUSE_WHEEL_DOWN_BUTTON);
         SetMouseButtonAssociatedWithAction(eControllerAction::CA_VEHICLE_RADIO_STATION_UP,   rsMOUSE_WHEEL_UP_BUTTON);
@@ -881,13 +881,13 @@ void CControllerConfigManager::SetMouseButtonAssociatedWithAction(eControllerAct
 // 0x52DA30
 void CControllerConfigManager::StoreMouseButtonState(eMouseButtons button, bool state) {
     switch (button) {
-    case MOUSE_BUTTON_LEFT:           CPad::TempMouseControllerState.isMouseLeftButtonPressed = state; break;
-    case MOUSE_BUTTON_MIDDLE:         CPad::TempMouseControllerState.isMouseMiddleButtonPressed = state; break;
-    case MOUSE_BUTTON_RIGHT:          CPad::TempMouseControllerState.isMouseRightButtonPressed = state; break;
-    case MOUSE_BUTTON_WHEEL_UP:       CPad::TempMouseControllerState.isMouseWheelMovedUp = state; break;
-    case MOUSE_BUTTON_WHEEL_DOWN:     CPad::TempMouseControllerState.isMouseWheelMovedDown = state; break;
-    case MOUSE_BUTTON_WHEEL_XBUTTON1: CPad::TempMouseControllerState.isMouseFirstXPressed = state; break;
-    case MOUSE_BUTTON_WHEEL_XBUTTON2: CPad::TempMouseControllerState.isMouseSecondXPressed = state; break;
+    case MOUSE_BUTTON_LEFT:           CPad::TempMouseControllerState.m_bLeftButton = state; break;
+    case MOUSE_BUTTON_MIDDLE:         CPad::TempMouseControllerState.m_bMiddleButton = state; break;
+    case MOUSE_BUTTON_RIGHT:          CPad::TempMouseControllerState.m_bRightButton = state; break;
+    case MOUSE_BUTTON_WHEEL_UP:       CPad::TempMouseControllerState.m_bWheelMovedUp = state; break;
+    case MOUSE_BUTTON_WHEEL_DOWN:     CPad::TempMouseControllerState.m_bWheelMovedDown = state; break;
+    case MOUSE_BUTTON_WHEEL_XBUTTON1: CPad::TempMouseControllerState.m_bMsFirstXButton = state; break;
+    case MOUSE_BUTTON_WHEEL_XBUTTON2: CPad::TempMouseControllerState.m_bMsSecondXButton = state; break;
     default:                          NOTSA_UNREACHABLE();
     }
 }

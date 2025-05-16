@@ -2,16 +2,15 @@
 
 class CMouseControllerState {
 public:
-    bool      isMouseLeftButtonPressed{};   // LMB
-    bool      isMouseRightButtonPressed{};  // RMB
-    bool      isMouseMiddleButtonPressed{}; // MMB
-    bool      isMouseWheelMovedUp{};        // Wheel up
-    bool      isMouseWheelMovedDown{};      // Wheel down
-    bool      isMouseFirstXPressed{};       // BMX1
-    bool      isMouseSecondXPressed{};      // BMX2
-    float     m_fWheelMoved{};              // Wheel movement
-    CVector2D m_AmountMoved{};              // Mouse movement
-
+    bool m_bLeftButton; // LMB
+    bool m_bRightButton; // RMB
+    bool m_bMiddleButton; // MMB
+    bool m_bWheelMovedUp; // Wheel up
+    bool m_bWheelMovedDown; // Wheel down
+    bool m_bMsFirstXButton; // BMX1
+    bool m_bMsSecondXButton; // BMX2
+    float m_fWheelMoved; // Wheel movement
+    CVector2D m_AmountMoved; // Mouse movement
 public:
     static void InjectHooks();
 
@@ -23,3 +22,13 @@ public:
     [[nodiscard]] auto GetAmountMouseMoved() const { return m_AmountMoved; }
 };
 VALIDATE_SIZE(CMouseControllerState, 0x14);
+
+    // bool      isMouseLeftButtonPressed{};   // LMB
+    // bool      m_bRightButton{};  // RMB
+    // bool      m_bMiddleButton{}; // MMB
+    // bool      m_bWheelMovedUp{};        // Wheel up
+    // bool      m_bWheelMovedDown{};      // Wheel down
+    // bool      m_bMsFirstXButton{};       // BMX1
+    // bool      m_bMsSecondXButton{};      // BMX2
+    // float     m_fWheelMoved{};              // Wheel movement
+    // CVector2D m_AmountMoved{};              // Mouse movement

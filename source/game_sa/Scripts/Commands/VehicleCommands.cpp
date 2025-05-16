@@ -123,7 +123,7 @@ void PlaneAttackPlayerUsingDogFight(CPlane& plane, CPlayerPed& player, float alt
     if (plane.m_autoPilot.m_nCarMission != eCarMission::MISSION_PLANE_CRASH_AND_BURN && plane.m_autoPilot.m_nCarMission != eCarMission::MISSION_HELI_CRASH_AND_BURN) {
         plane.m_autoPilot.SetCarMission(eCarMission::MISSION_PLANE_DOG_FIGHT_PLAYER);
     }
-    plane.m_minAltitude = altitude;
+    plane.m_MinHeightAboveTerrain = altitude;
 }
 
 }

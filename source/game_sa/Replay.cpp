@@ -604,7 +604,7 @@ void CReplay::ProcessLookAroundCam() {
             playerCameraDirAngle += steer.x;
             FramesActiveLookAroundCam--;
 
-            if (pad->NewMouseControllerState.isMouseLeftButtonPressed && pad->NewMouseControllerState.isMouseRightButtonPressed) {
+            if (pad->NewMouseControllerState.m_bLeftButton && pad->NewMouseControllerState.m_bRightButton) {
                 playerCameraDistance = std::clamp(playerCameraDistance + 2.0f * steer.y, 3.0f, 15.0f);
             } else {
                 viewAngle = std::clamp(viewAngle + steer.y, 0.1f, 1.5f); // probably some kind of cheap clamping between [0, pi/2].
@@ -927,8 +927,8 @@ void CReplay::RecordThisFrame() {
                 *packet.As<tReplayVehicleBlock>() = tReplayVehicleBlock::MakeVehicleUpdateData(veh, i);
 
                 packet.type = REPLAY_PACKET_PLANE;
-                packet.field_9C8 = veh.AsPlane()->field_9C8;
-                packet.propSpeed = veh.AsPlane()->m_fPropSpeed;
+                packet.engineSpeed    = veh.AsPlane()->m_fEngineSpeed;
+                packet.propellerAngle = veh.AsPlane()->m_fPropellerAngle;
                 Record.Write(packet);
                 break;
             }
@@ -1278,8 +1278,9 @@ bool CReplay::PlayBackThisFrameInterpolation(CAddressInReplayBuffer& buffer, flo
                 auto vehicle = GetVehiclePool()->GetAt(poolIdx);
 
                 planePacket.ExtractVehicleUpdateData(*vehicle, interpolation);
-                vehicle->AsPlane()->field_9C8 = planePacket.field_9C8;
-                vehicle->AsPlane()->m_fPropSpeed = planePacket.propSpeed;
+                vehicle->AsPlane()->m_fEngineSpeed = planePacket.engineSpeed;
+                vehicle->AsPlane()->m_fPropellerAngle = planePacket.propellerAngle;
+
             }
             break;
         }

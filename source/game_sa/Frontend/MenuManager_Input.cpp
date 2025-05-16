@@ -358,15 +358,13 @@ bool CMenuManager::CheckRedefineControlInput() {
 
             m_nJustDownJoyButton = ControlsManager.GetJoyButtonJustDown();
 
-            // Android
             auto TypeOfControl = eControllerType::KEYBOARD;
-            if (m_nJustDownJoyButton != NO_JOYBUTTONS) {
-                TypeOfControl = eControllerType::JOY_STICK;
-            } else if (m_nPressedMouseButton) {
-                TypeOfControl = eControllerType::MOUSE;
-            } if (*m_pPressedKey != rsNULL) {
-                TypeOfControl = eControllerType::KEYBOARD;
-            }
+			if (m_nJustDownJoyButton)
+				TypeOfControl = eControllerType::JOY_STICK;
+			if (m_nPressedMouseButton)
+				TypeOfControl = eControllerType::MOUSE;
+			if (*m_pPressedKey != rsNULL)
+				TypeOfControl = eControllerType::KEYBOARD;
 
             if (m_CanBeDefined) {
                 if (m_DeleteAllBoundControls) {
@@ -773,28 +771,17 @@ void CMenuManager::CheckCodesForControls(eControllerType type) {
         ControlsManager.ClearSettingsAssociatedWithAction(actionId, controllerType);
 
         // Set the new control based on input type
-        switch (type) {
-        case eControllerType::MOUSE: {
+        if (type == eControllerType::MOUSE) {
             ControlsManager.DeleteMatchingActionInitiators(actionId, m_nPressedMouseButton, eControllerType::MOUSE);
             ControlsManager.SetControllerKeyAssociatedWithAction(actionId, m_nPressedMouseButton, controllerType);
-            break;
-        }
-        case eControllerType::JOY_STICK: {
+        } else if (type == eControllerType::JOY_STICK) {
             ControlsManager.DeleteMatchingActionInitiators(actionId, m_nJustDownJoyButton, eControllerType::JOY_STICK);
             ControlsManager.SetControllerKeyAssociatedWithAction(actionId, m_nJustDownJoyButton, controllerType);
-            break;
-        }
-        // Keyboard + Optional Extra Key
-        case eControllerType::KEYBOARD:
-        case eControllerType::OPTIONAL_EXTRA_KEY: {
+        } else {
+            // Keyboard
             ControlsManager.DeleteMatchingActionInitiators(actionId, *m_pPressedKey, eControllerType::KEYBOARD);
             ControlsManager.DeleteMatchingActionInitiators(actionId, *m_pPressedKey, eControllerType::OPTIONAL_EXTRA_KEY);
             ControlsManager.SetControllerKeyAssociatedWithAction(actionId, *m_pPressedKey, controllerType);
-            break;
-        }
-        default:
-            NOTSA_UNREACHABLE();
-            break;
         }
 
         // Reset state

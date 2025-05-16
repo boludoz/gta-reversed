@@ -386,28 +386,28 @@ CMouseControllerState GetMouseSetUp() {
         case 5:
         case 4:
         case 3:
-            state.isMouseMiddleButtonPressed = true; // Assumes button 3+ implies MMB exists
+            state.m_bMiddleButton = true; // Assumes button 3+ implies MMB exists
             [[fallthrough]];
         case 2:
-            state.isMouseRightButtonPressed = true; // Assumes button 2+ implies RMB exists
+            state.m_bRightButton = true; // Assumes button 2+ implies RMB exists
             [[fallthrough]];
         case 1:
-            state.isMouseLeftButtonPressed = true; // Assumes button 1+ implies LMB exists
+            state.m_bLeftButton = true; // Assumes button 1+ implies LMB exists
             [[fallthrough]];
         default:
             break;
         }
 
         if (devCaps.dwAxes >= 3) {
-            state.isMouseWheelMovedDown = true;
-            state.isMouseWheelMovedUp = true;
+            state.m_bWheelMovedDown = true;
+            state.m_bWheelMovedUp = true;
         }
 
         if (devCaps.dwButtons >= 4) {
-            state.isMouseFirstXPressed = true;
+            state.m_bMsFirstXButton = true;
         }
         if (devCaps.dwButtons >= 5) {
-            state.isMouseSecondXPressed = true;
+            state.m_bMsSecondXButton = true;
         }
     }
     return state;

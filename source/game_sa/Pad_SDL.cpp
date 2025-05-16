@@ -8,17 +8,17 @@ bool CPad::ProcessMouseEvent(const SDL_Event& e, CMouseControllerState& ms) {
     case SDL_EVENT_MOUSE_BUTTON_DOWN:
     case SDL_EVENT_MOUSE_BUTTON_UP: {
         switch (e.button.button) {
-        case SDL_BUTTON_LEFT:   ms.isMouseLeftButtonPressed = e.button.down;  break;
-        case SDL_BUTTON_RIGHT:  ms.isMouseRightButtonPressed = e.button.down;  break;
-        case SDL_BUTTON_MIDDLE: ms.isMouseMiddleButtonPressed = e.button.down;  break;
-        case SDL_BUTTON_X1:     ms.isMouseFirstXPressed = e.button.down; break;
-        case SDL_BUTTON_X2:     ms.isMouseSecondXPressed = e.button.down; break;
+        case SDL_BUTTON_LEFT:   ms.m_bLeftButton = e.button.down;  break;
+        case SDL_BUTTON_RIGHT:  ms.m_bRightButton = e.button.down;  break;
+        case SDL_BUTTON_MIDDLE: ms.m_bMiddleButton = e.button.down;  break;
+        case SDL_BUTTON_X1:     ms.m_bMsFirstXButton = e.button.down; break;
+        case SDL_BUTTON_X2:     ms.m_bMsSecondXButton = e.button.down; break;
         }
         return true;
     }
     case SDL_EVENT_MOUSE_WHEEL: {
-        ms.isMouseWheelMovedUp   = e.wheel.y > 0.f;
-        ms.isMouseWheelMovedDown = e.wheel.y < 0.f;
+        ms.m_bWheelMovedUp   = e.wheel.y > 0.f;
+        ms.m_bWheelMovedDown = e.wheel.y < 0.f;
         return true;
     }
     case SDL_EVENT_MOUSE_MOTION: {

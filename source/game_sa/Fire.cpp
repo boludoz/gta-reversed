@@ -375,7 +375,9 @@ void CFire::ProcessFire() {
     }
 
     if (m_IsCreatedByScript || (HasTimeToBurn() && IsNotInRemovalDistance())) {
-        const float fColorRG = (float)(CGeneral::GetRandomNumber() % 128) / 512.0f; // todo: GetRandomNumberInRange
+        // Original code:
+        // const float fColorRG = (float)(CGeneral::GetRandomNumber() % 128) / 512.0f; 
+        const float fColorRG = CGeneral::GetRandomNumberInRange(0.0f, 0.25f);
         CPointLights::AddLight(ePointLightType::PLTYPE_POINTLIGHT, m_Position, CVector{}, 8.0f, fColorRG, fColorRG, 0.0f, 0, false, nullptr);
     } else {
         if (m_Strength <= 1.0f) {

@@ -536,13 +536,13 @@ void CMenuManager::SetDefaultPreferences(eMenuScreen screen) {
         m_PrefsBrightness                = 256;
         m_fDrawDistance                  = 1.2f;
         CRenderer::ms_lodDistScale       = 1.2f;
-        m_bPrefsFrameLimiter             = true;
+        m_bPrefsFrameLimiter             = false; // NOTSA
         m_bHudOn                         = true;
         m_bSavePhotos                    = true;
         m_bPrefsMipMapping               = true;
         m_nPrefsAntialiasing             = 1;
         m_nDisplayAntialiasing           = 1;
-        m_bWidescreenOn                  = false;
+        m_bWidescreenOn                  = true; // NOTSA
         m_bMapLegend                     = false;
         m_nRadarMode                     = eRadarMode::MAPS_AND_BLIPS;
         m_nDisplayVideoMode              = m_nPrefsVideoMode;
