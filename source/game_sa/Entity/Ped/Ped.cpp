@@ -2865,7 +2865,7 @@ void CPed::PreRenderAfterTest()
         }
     }
 
-    if (GetModelID() == MODEL_PLAYER) {
+    if (GetModelIndex() == MODEL_PLAYER) {
         ShoulderBoneRotation(m_pRwClump);
         m_bDontUpdateHierarchy = true;
     }

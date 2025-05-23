@@ -195,7 +195,7 @@ public:
     CBaseModelInfo* GetModelInfo() const;
     CCollisionData* GetColData() { return GetColModel()->m_pColData; }
 
-    auto GetModelID() const { return (eModelID)(m_nModelIndex); }
+    auto GetModelIndex() const { return (eModelID)(m_nModelIndex); }
 
     //! @notsa
     bool ProcessScan();

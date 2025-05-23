@@ -60,6 +60,8 @@ void CCam::InjectHooks() {
     RH_ScopedInstall(Process_DW_PlaneCam2, 0x51CC30, { .reversed = false });
     RH_ScopedInstall(Process_DW_PlaneCam3, 0x51D100, { .reversed = false });
     RH_ScopedInstall(Process_DW_PlaneSpotterCam, 0x51C250, { .reversed = false });
+    RH_ScopedInstall(Process_DW_DogFightCam, 0x50E240);
+    RH_ScopedInstall(Process_DW_FishCam, 0x50E250);
     RH_ScopedInstall(Process_Editor, 0x50F3F0);
     RH_ScopedInstall(Process_Fixed, 0x51D470);
     RH_ScopedInstall(Process_FlyBy, 0x5B25F0, { .reversed = false });
@@ -767,38 +769,51 @@ void CCam::Process_Cam_TwoPlayer_Separate_Cars_TopDown() {
 }
 
 // 0x51B850
-void CCam::Process_DW_BirdyCam(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_BirdyCam(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51B850, CCam*, bool>(this, bCheckValid);
+
 }
 
 // 0x51B120
-void CCam::Process_DW_CamManCam(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_CamManCam(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51B120, CCam*, bool>(this, bCheckValid);
 }
 
 // 0x51A740
-void CCam::Process_DW_HeliChaseCam(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_HeliChaseCam(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51A740, CCam*, bool>(this, bCheckValid);
 }
 
 // 0x51C760
-void CCam::Process_DW_PlaneCam1(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_PlaneCam1(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51C760, CCam*, bool>(this, bCheckValid);
 }
 
 // 0x51CC30
-void CCam::Process_DW_PlaneCam2(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_PlaneCam2(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51CC30, CCam*, bool>(this, bCheckValid);
 }
 
 // 0x51D100
-void CCam::Process_DW_PlaneCam3(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_PlaneCam3(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51D100, CCam*, bool>(this, bCheckValid);
 }
 
 // 0x51C250
-void CCam::Process_DW_PlaneSpotterCam(bool) {
-    NOTSA_UNREACHABLE();
+bool CCam::Process_DW_PlaneSpotterCam(bool bCheckValid) {
+    return plugin::CallMethodAndReturn<bool, 0x51C250, CCam*, bool>(this, bCheckValid);
+}
+
+// 0x50E240
+bool CCam::Process_DW_DogFightCam(bool bCheckValid) {
+	TheCamera.m_bUseNearClipScript = false;
+	return false;
+}
+
+// 0x50E250
+bool CCam::Process_DW_FishCam(bool bCheckValid) {
+	TheCamera.m_bUseNearClipScript = false;
+	return false;
 }
 
 // 0x50F3F0 - debug
@@ -942,13 +957,13 @@ void CCam::Process_FollowCar_SA(const CVector &ThisCamsTarget, float TargetOrien
     static float PROSTITUTE_CAM_ALPHA_RATE  = 0.0035f;
 
     CamFollowPedData CARCAM_SET[FOLLOW_CAR_MAX] = {
-        {1.3f,	1.0f,	0.40f,	10.0f,	15.0f,	0.5f, 	1.0f, 	1.0f,	0.85f,	0.2f,	0.075f,	0.05f,		0.80f,	DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
-        {1.1f,	1.0f,	0.10f,	10.0f,	11.0f,	0.5f, 	1.0f, 	1.0f,	0.85f,	0.2f,	0.075f,	0.05f,		0.75f,	DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
-        {1.1f,	1.0f,	0.20f,	10.0f,	15.0f,	0.05f, 	0.05f, 	0.0f,	0.9f,	0.05f,	0.01f,	0.05f,		1.0f,	DegreesToRadians(10.0f), DegreesToRadians(70.0f)},
-        {1.1f,	3.5f,	0.20f,	10.0f,	25.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f,		1.0f,	DegreesToRadians(89.0f), DegreesToRadians(89.0f)},
-        {1.3f,	1.0f,	0.40f,	10.0f,	15.0f,	0.5f, 	1.0f, 	0.0f,	0.9f,	0.05f,	0.005f,	0.05f,		1.0f,	DegreesToRadians(20.0f), DegreesToRadians(70.0f)},
-        {1.1f,	1.0f,	0.20f,	10.0f,	5.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f,		1.0f,	DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
-        {1.1f,	1.0f,	0.20f,	10.0f,	5.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f,		1.0f,	DegreesToRadians(20.0f), DegreesToRadians(70.0f)}
+        {1.3f,	1.0f,	0.40f,	10.0f,	15.0f,	0.5f, 	1.0f, 	1.0f,	0.85f,	0.2f,	0.075f,	0.05f, 0.80f, DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
+        {1.1f,	1.0f,	0.10f,	10.0f,	11.0f,	0.5f, 	1.0f, 	1.0f,	0.85f,	0.2f,	0.075f,	0.05f, 0.75f, DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
+        {1.1f,	1.0f,	0.20f,	10.0f,	15.0f,	0.05f, 	0.05f, 	0.0f,	0.9f,	0.05f,	0.01f,	0.05f, 1.0f, DegreesToRadians(10.0f), DegreesToRadians(70.0f)},
+        {1.1f,	3.5f,	0.20f,	10.0f,	25.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f, 1.0f, DegreesToRadians(89.0f), DegreesToRadians(89.0f)},
+        {1.3f,	1.0f,	0.40f,	10.0f,	15.0f,	0.5f, 	1.0f, 	0.0f,	0.9f,	0.05f,	0.005f,	0.05f, 1.0f, DegreesToRadians(20.0f), DegreesToRadians(70.0f)},
+        {1.1f,	1.0f,	0.20f,	10.0f,	5.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f, 1.0f, DegreesToRadians(45.0f), DegreesToRadians(89.0f)},
+        {1.1f,	1.0f,	0.20f,	10.0f,	5.0f,	0.5f, 	1.0f, 	1.0f,	0.75f,	0.1f,	0.005f,	0.20f, 1.0f, DegreesToRadians(20.0f), DegreesToRadians(70.0f)}
     };
 
     if (!m_pCamTargetEntity->IsVehicle()) {

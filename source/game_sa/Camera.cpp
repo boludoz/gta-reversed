@@ -27,6 +27,8 @@ uint8&    gCurCamColVars                 = *(uint8*)0x8CCB80;
 float&    gCurDistForCam                 = *(float*)0x8CCB84;
 float*&   gpCamColVars                   = *(float**)0xB6FE88;
 float (&gCamColVars)[28][6]              = *(float (*)[28][6])0x8CC8E0;
+int8_t& gCinematicModeSwitchDir          = *(int8_t*)0x8CC471; // 1
+bool&   bSwitchedToObbeCam               = *(bool*)0xB6EC34; // false
 
 CCam& CCamera::GetActiveCamera() {
     return TheCamera.m_aCams[TheCamera.m_nActiveCam];
@@ -120,7 +122,7 @@ void CCamera::InjectHooks() {
     RH_ScopedInstall(CameraPedModeSpecialCases, 0x50CD80);
     RH_ScopedInstall(CameraPedAimModeSpecialCases, 0x50CDA0);
     RH_ScopedInstall(CameraVehicleModeSpecialCases, 0x50CDE0);
-    RH_ScopedInstall(IsItTimeForNewCamera, 0x51D770, { .reversed = false });
+    RH_ScopedInstall(IsItTimeForNewCamera, 0x51D770);
     RH_ScopedInstall(IsExtraEntityToIgnore, 0x50CE80);
     RH_ScopedInstall(ConsiderPedAsDucking, 0x50CEB0);
     RH_ScopedInstall(ResetDuckingSystem, 0x50CEF0);
@@ -1628,8 +1630,280 @@ void CCamera::ProcessVectorTrackLinear(float ratio) {
 }
 
 // 0x51D770
-bool CCamera::IsItTimeForNewCamera(int32 camSequence, int32 startTime) {
-    return plugin::CallMethodAndReturn<bool, 0x51D770, CCamera*, int32, int32>(this, camSequence, startTime);
+bool CCamera::IsItTimeForNewCamera(int32 MovieCamMode, int32 TimeWhenStarted) {
+    CVector Diff;
+    float NearClipWheelCam = 0.6f;
+    float NearClipCarOnFloor = 0.0f;
+    static float maxTimeForAnyCam = 20000;
+    static float aNewReasonableMaxTimeForSomeCams = 15000;
+    static bool gRightStickCinematicCameraSwitchReturnedToZero = true;
+
+    if (MovieCamMode < 0) {
+        return true;
+    }
+    auto t = CTimer::GetTimeInMS();
+    auto tExpired = t - TimeWhenStarted;
+
+    if (tExpired > maxTimeForAnyCam) {
+        return true;
+    }
+
+    float stickX = CPad::GetPad(0)->GetRightStickX();
+    float stickXAbs = std::fabs(stickX);
+    float stickRange = 128.0f;
+
+    if (stickXAbs <= stickRange * 0.25f) {
+        gRightStickCinematicCameraSwitchReturnedToZero = true;
+    } else if (stickXAbs > stickRange * 0.75f && gRightStickCinematicCameraSwitchReturnedToZero) {
+        gCinematicModeSwitchDir = (stickX > 0.0f) ? 1 : -1;
+        gRightStickCinematicCameraSwitchReturnedToZero = false;
+        return true;
+    }
+
+    switch (MovieCamMode) {
+    case MOVIECAM0: {
+        CVehicle *pVehicle = FindPlayerVehicle();
+        if (pVehicle != nullptr) {
+            if ((pVehicle->IsBoat() && m_pTargetEntity->GetModelIndex() != MODEL_SKIMMER) || (pVehicle->GetModelIndex() == MODEL_RHINO)) {
+                return true;
+            }
+
+            if (!(CWorld::GetIsLineOfSightClear(m_pTargetEntity->GetPosition(), m_aCams[m_nActiveCam].m_vecSource, true, false, false, false, false, false, false))) {
+                return true;
+            }
+        }
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 5000)) {
+            return true;
+        }
+        RwCameraSetNearClipPlane(Scene.m_pRwCamera, RwReal(0.3f * 0.5f));
+    } break;
+
+    case MOVIECAM1:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() && (FindPlayerVehicle()->IsBoat() && (m_pTargetEntity->GetModelIndex()) != MODEL_SKIMMER)) {
+            return true;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 40.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f)
+            return true;
+        if (Diff.Magnitude() < 4.5f)
+            return true;
+        break;
+
+    case MOVIECAM2:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() && ((FindPlayerVehicle()->IsBoat()) && (m_pTargetEntity->GetModelIndex()) != MODEL_SKIMMER)) {
+            return true;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() < 2.0f) {
+            float TempNearClip = Diff.Magnitude() / 2.0f;
+            if (TempNearClip < 0.05f) {
+                TempNearClip = 0.05f;
+            }
+            SetNearClipScript(TempNearClip);
+        }
+        if ((Diff.Magnitude() > 29.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f) || (Diff.Magnitude() < 2.0f)) {
+            return true;
+        }
+        RwCameraSetNearClipPlane(Scene.m_pRwCamera, RwReal(0.15));
+        break;
+    case MOVIECAM3:
+        if ((!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) || (tExpired > aNewReasonableMaxTimeForSomeCams)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 48.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f) {
+            return true;
+        }
+        RwCameraSetNearClipPlane(Scene.m_pRwCamera, RwReal(0.15));
+        break;
+
+    case MOVIECAM4:
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 3000)) {
+            return true;
+        }
+        break;
+    case MOVIECAM5:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() && (FindPlayerVehicle()->IsBoat() && (m_pTargetEntity->GetModelIndex()) != MODEL_SKIMMER)) {
+            return true;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 38.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f)
+            return true;
+        break;
+
+    case MOVIECAM6:
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 3'000)) {
+            return true;
+        }    
+        break;
+    case MOVIECAM7:
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 2000) && !FindPlayerVehicle()->GetIsOnScreen()) {
+            return true;
+        }
+        break;
+    case MOVIECAM8:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() && (FindPlayerVehicle()->IsBoat() && (m_pTargetEntity->GetModelIndex()) != MODEL_SKIMMER)) {
+            return true;
+        }
+        if (!(CWorld::GetIsLineOfSightClear(m_pTargetEntity->GetPosition(), m_aCams[m_nActiveCam].m_vecSource, true, false, false, false, false, false, false))) {
+            return true;
+        }
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 1000)) {
+            return true;
+        }
+        SetNearClipScript(NearClipWheelCam);
+        break;
+    case MOVIECAM9:
+    case MOVIECAM10:
+    case MOVIECAM11:
+    case MOVIECAM12:
+    case MOVIECAM14:
+        break;
+    case MOVIECAM15:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() == nullptr) {
+            return false;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 44.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f || Diff.Magnitude() < 3.6f) {
+            return true;
+        }
+        break;
+    case MOVIECAM16:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() == nullptr) {
+            return false;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 50.0f || Diff.Magnitude() < 3.0f) {
+            return true;
+        }
+        break;
+    case MOVIECAM17:
+        if (tExpired > aNewReasonableMaxTimeForSomeCams) {
+            return true;
+        }
+        if (FindPlayerVehicle() == nullptr) {
+            return false;
+        }
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if ((Diff.Magnitude() > 50.0f && DotProduct(FindPlayerSpeed(), Diff) > 0.0f) || (Diff.Magnitude() < 2.0f)) {
+            return true;
+        }
+        break;
+    case MOVIECAM18:
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false) || (tExpired > aNewReasonableMaxTimeForSomeCams)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        if (Diff.Magnitude() > 57.0f || Diff.Magnitude() < 1.6f) {
+            return true;
+        }
+        break;
+    case MOVIECAM19:
+        if (!CWorld::GetIsLineOfSightClear(FindPlayerCoors(), m_vecFixedModeSource, true, false, false, false, false, false, false) || (tExpired > aNewReasonableMaxTimeForSomeCams)) {
+            return true;
+        }
+        Diff = FindPlayerCoors() - m_vecFixedModeSource;
+        Diff.z = 0.0f;
+        if (Diff.Magnitude() > 36.0f || Diff.Magnitude() < 2.0f) {
+            return true;
+        }
+        break;
+    case MOVIECAM20:
+        if (!m_aCams[m_nActiveCam].Process_DW_HeliChaseCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAM21:
+        if (!m_aCams[m_nActiveCam].Process_DW_CamManCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAM22:
+        if (!m_aCams[m_nActiveCam].Process_DW_BirdyCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAM23:
+        if (!m_aCams[m_nActiveCam].Process_DW_PlaneSpotterCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAM24:
+        if (!m_aCams[this->m_nActiveCam].Process_DW_DogFightCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAM25:
+        if (!m_aCams[m_nActiveCam].Process_DW_FishCam(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAMPLANE1:
+        if (!m_aCams[m_nActiveCam].Process_DW_PlaneCam1(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAMPLANE2:
+        if (!m_aCams[m_nActiveCam].Process_DW_PlaneCam2(true)) {
+            return true;
+        }
+        break;
+    case MOVIECAMPLANE3:
+        if (!m_aCams[m_nActiveCam].Process_DW_PlaneCam3(true)) {
+            return true;
+        }
+        break;
+    case CAM_ON_A_STRING_LAST_RESORT:
+        if (CTimer::GetTimeInMS() > uint32(TimeWhenStarted + 5'000)) {
+            return true;
+        }
+        break;
+    }
+
+    return false;
 }
 
 // 0x50B830
@@ -1641,9 +1915,6 @@ bool CCamera::CameraObscuredByWaterLevel() {
     m_vecSource = &TheCamera.m_aCams[TheCamera.m_nActiveCam].m_vecSource;
     return CWaterLevel::GetWaterLevel(m_vecSource->x, m_vecSource->y, m_vecSource->z, pLevel, true, nullptr) && pLevel >= m_vecSource->z;
 }
-
-int8_t& gCinematicModeSwitchDir = *(int8_t*)0x8CC471; // ?
-bool&   bSwitchedToObbeCam      = *(bool*)0xB6EC34;   // false
 
 // Lambda auxiliar function
 // NotSA: This function is used to avoid code duplication.

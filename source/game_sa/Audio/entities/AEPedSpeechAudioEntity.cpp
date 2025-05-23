@@ -87,7 +87,7 @@ CAEPedSpeechAudioEntity::CAEPedSpeechAudioEntity(CPed* ped) noexcept :
     CAEPedSpeechAudioEntity{}
 {
     m_pEntity = ped;
-    if (ped->GetModelID() != MODEL_INVALID) {
+    if (ped->GetModelIndex() != MODEL_INVALID) {
         auto* const mi = ped->GetPedModelInfo();
         m_PedAudioType = mi->m_nPedAudioType;
         switch (m_PedAudioType) {
@@ -108,7 +108,7 @@ CAEPedSpeechAudioEntity::CAEPedSpeechAudioEntity(CPed* ped) noexcept :
             break;
         }
         }
-        VERIFY(GetSexFromModel(ped->GetModelID()));
+        VERIFY(GetSexFromModel(ped->GetModelIndex()));
         m_IsInitialized = true;
     }
 }

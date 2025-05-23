@@ -545,12 +545,25 @@ CTask* CTaskComplexEnterCar::CreateFirstSubTask(CPed* ped) {
 
     if (const auto tGoToCarDoor = static_cast<CTaskComplexGoToCarDoorAndStandStill*>(C(TASK_COMPLEX_GO_TO_CAR_DOOR_AND_STAND_STILL))) {
         if (ped->physicalFlags.bSubmergedInWater && !ped->bIsStanding) {
-            if (notsa::contains({ MODEL_SKIMMER, MODEL_VORTEX, MODEL_SEASPAR, MODEL_LEVIATHN }, m_Car->GetModelID())) {
+/*             if (notsa::contains({ MODEL_SKIMMER, MODEL_VORTEX, MODEL_SEASPAR, MODEL_LEVIATHN }, m_Car->GetModelIndex())) {
                 if (CCarEnterExit::GetNearestCarDoor(ped, m_Car, m_TargetDoorPos, m_TargetDoor)) {
                     tGoToCarDoor->SetTargetPt(m_TargetDoorPos);
                     tGoToCarDoor->SetTargetDoor(m_TargetDoor);
                     tGoToCarDoor->SetTryingToEnterInWater(true);
                 }
+            }
+ */
+            switch (m_Car->GetModelIndex()) {
+            case MODEL_SKIMMER:
+            case MODEL_VORTEX:
+            case MODEL_SEASPAR:
+            case MODEL_LEVIATHN:
+                if (CCarEnterExit::GetNearestCarDoor(ped, m_Car, m_TargetDoorPos, m_TargetDoor)) {
+                    tGoToCarDoor->SetTargetPt(m_TargetDoorPos);
+                    tGoToCarDoor->SetTargetDoor(m_TargetDoor);
+                    tGoToCarDoor->SetTryingToEnterInWater(true);
+                }
+                break;
             }
         }
         return tGoToCarDoor;
