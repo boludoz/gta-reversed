@@ -208,37 +208,63 @@ void CCam::DoCamBump(float horizontal, float vertical) {
 
 // 0x50DD70
 void CCam::Finalise_DW_CineyCams(const CVector& src, const CVector& dest, float roll, float fov, float nearClip, float shakeDegree) {
-    m_vecFront  = (src - dest).Normalized();
+    // Calculate front vector (from source to destination)
+    m_vecFront = dest - src;
+    m_vecFront.Normalise();
+
     m_vecSource = src;
 
-    // What is this thing?
-    {
-        auto rightDir = CrossProduct(m_vecFront, { std::sin(roll), 0.0f, std::cos(roll) }).Normalized();
-        m_vecUp       = CrossProduct(rightDir, m_vecFront);
-        if (m_vecFront.x == 0.0f && m_vecFront.y == 0.0f) {
-            m_vecFront.x = m_vecFront.y = 0.0001f;
-        }
-        rightDir = CrossProduct(m_vecFront, m_vecUp).Normalized();
-        m_vecUp  = CrossProduct(rightDir, m_vecFront);
+    // Calculate initial up vector from roll angle
+    CVector up = CVector(std::sin(roll), 0.0f, std::cos(roll));
+    auto tempRight = CrossProduct(m_vecFront, up);
+    tempRight.Normalise();
+    m_vecUp = CrossProduct(tempRight, m_vecFront);
+
+    // Handle degenerate case where front vector is pointing straight up/down
+    if (m_vecFront.x == 0.0f && m_vecFront.y == 0.0f) {
+        // Apply small perturbation to avoid gimbal lock
+        m_vecFront.x = 0.0001f;
+        m_vecFront.y = 0.0001f;
+        m_vecFront.Normalise();
     }
+    
+    // Recalculate orientation vectors after potential front adjustment
+    tempRight = CrossProduct(m_vecFront, m_vecUp);
+    tempRight.Normalise();
+    m_vecUp = CrossProduct(tempRight, m_vecFront);
 
     m_fFOV = fov;
-    RwCameraSetNearClipPlane(Scene.m_pRwCamera, 0.4f); // meant to use nearClip here?
+    RwCameraSetNearClipPlane(Scene.m_pRwCamera, 0.4f); // Keep original hardcoded value for compatibility
+    
     CacheLastSettingsDWCineyCam();
     gLastFrameProcessedDWCineyCam = CTimer::GetFrameCounter();
+    
+    // Apply camera shake
     gHandShaker[0].Process(shakeDegree);
-
+    
+    // Transform front vector by shake matrix
     m_vecFront = gHandShaker[0].m_resultMat.TransformVector(m_vecFront);
+    
+    // Recalculate orientation vectors after shake
+    m_vecFront.Normalise();
+    
+    // Recalculate up vector with potentially modified roll from shake
+    up = CVector(std::sin(roll), 0.0f, std::cos(roll));
+    tempRight = CrossProduct(m_vecFront, up);
+    tempRight.Normalise();
+    m_vecUp = CrossProduct(tempRight, m_vecFront);
 
-    {
-        auto rightDir = CrossProduct(m_vecFront, { std::sin(roll), 0.0f, std::cos(roll) }).Normalized();
-        m_vecUp       = CrossProduct(rightDir, m_vecFront);
-        if (m_vecFront.x == 0.0f && m_vecFront.y == 0.0f) {
-            m_vecFront.x = m_vecFront.y = 0.0001f;
-        }
-        rightDir = CrossProduct(m_vecFront, m_vecUp).Normalized();
-        m_vecUp  = CrossProduct(rightDir, m_vecFront);
+    // Handle degenerate case again after shake
+    if (m_vecFront.x == 0.0f && m_vecFront.y == 0.0f) {
+        m_vecFront.x = 0.0001f;
+        m_vecFront.y = 0.0001f;
+        m_vecFront.Normalise();
     }
+    
+    // Final orientation calculation
+    tempRight = CrossProduct(m_vecFront, m_vecUp);
+    tempRight.Normalise();
+    m_vecUp = CrossProduct(tempRight, m_vecFront);
 }
 
 // 0x517130
@@ -282,12 +308,26 @@ void CCam::GetLookFromLampPostPos(CEntity* target, CPed* cop, const CVector& vec
 
 // 0x509CE0
 void CCam::GetVectorsReadyForRW() {
+    // Start with world up vector
+    CVector tempUp = CVector(0.0f, 0.0f, 1.0f);
+    
+    // Normalize front vector
     m_vecFront.Normalise();
+    
+    // Handle degenerate case where front vector is pointing straight up/down
     if (m_vecFront.x == 0.0f && m_vecFront.y == 0.0f) {
-        m_vecFront.x = m_vecFront.y = 0.0001f;
+        // Apply small perturbation to avoid gimbal lock
+        m_vecFront.x = 0.0001f;
+        m_vecFront.y = 0.0001f;
+        m_vecFront.Normalise();
     }
-    const auto a = CrossProduct(m_vecFront, { 0.0f, 0.0f, 1.0f }).Normalized();
-    m_vecUp = CrossProduct(a, m_vecFront);
+    
+    // Calculate right vector using cross product with world up
+    CVector tempRight = CrossProduct(m_vecFront, tempUp);
+    tempRight.Normalise();
+    
+    // Calculate final up vector perpendicular to front and right
+    m_vecUp = CrossProduct(tempRight, m_vecFront);
 }
 
 // 0x513E40
