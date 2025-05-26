@@ -325,7 +325,7 @@ bool CTaskSimpleHoldEntity::SetPedPosition(CPed* ped) {
                 if (ped->m_matrix)
                     m_pEntityToHold->SetPosn(ped->GetPosition());
                 else
-                    m_pEntityToHold->SetPosn(ped->m_placement.m_vPosn);
+                    m_pEntityToHold->SetPosn(ped->m_placement.m_translate);
             }
             m_pEntityToHold->UpdateRW();
             m_pEntityToHold->UpdateRwFrame();

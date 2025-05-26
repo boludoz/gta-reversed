@@ -62,7 +62,7 @@ enum eGarageDoorState : uint8 {
 };
 
 struct CStoredCar {
-    CVector m_vPosn;
+    CVector m_translate;
     uint32  m_nHandlingFlags;
     uint8   m_nStoredCarFlags;
     uint8   _pad0;
@@ -95,7 +95,7 @@ VALIDATE_SIZE(CStoredCar, 0x40);
 
 class CGarage {
 public:
-    CVector          m_vPosn;
+    CVector          m_translate;
     CVector2D        m_vDirectionA;
     CVector2D        m_vDirectionB;
     float            m_fTopZ;
@@ -188,7 +188,7 @@ struct CSaveGarage {
     eGarageType      m_nType;
     eGarageDoorState m_nDoorState;
     uint8            m_nFlags;
-    CVector          m_vPosn;
+    CVector          m_translate;
     CVector2D        m_vDirectionA, m_vDirectionB;
     float            m_fTopZ;
     float            m_fWidth, m_fHeight;

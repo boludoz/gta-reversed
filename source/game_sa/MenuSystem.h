@@ -49,7 +49,7 @@ public:
         uint8          m_nNumColumns;
         bool           m_abColumnInteractive[MENU_COL_COUNT];
         float          m_afColumnWidth[MENU_COL_COUNT];
-        CVector2D      m_vPosn;
+        CVector2D      m_translate;
         bool           m_bColumnBackground;
         MenuId         m_nSelectedRow;
         MenuId         m_nAcceptedRow;

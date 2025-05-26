@@ -46,13 +46,13 @@ CPlaceable::~CPlaceable() {
 CVector CPlaceable::GetRightVector() {
     if (m_matrix)
         return m_matrix->GetRight();
-    return { std::cos(m_placement.m_fHeading), std::sin(m_placement.m_fHeading), 0.0f };
+    return { std::cos(m_placement.m_heading), std::sin(m_placement.m_heading), 0.0f };
 }
 
 CVector CPlaceable::GetForwardVector() {
     if (m_matrix)
         return m_matrix->GetForward();
-    return { -std::sin(m_placement.m_fHeading), std::cos(m_placement.m_fHeading), 0.0f };
+    return { -std::sin(m_placement.m_heading), std::cos(m_placement.m_heading), 0.0f };
 }
 
 CVector CPlaceable::GetUpVector() {
@@ -73,7 +73,7 @@ void CPlaceable::SetPosn(const CVector& posn) {
 
 void CPlaceable::SetOrientation(float x, float y, float z) {
     if (!m_matrix) {
-        m_placement.m_fHeading = z;
+        m_placement.m_heading = z;
         return;
     }
 
@@ -86,12 +86,12 @@ void CPlaceable::SetHeading(float heading) {
     if (m_matrix)
         m_matrix->SetRotateZOnly(heading);
     else
-        m_placement.m_fHeading = heading;
+        m_placement.m_heading = heading;
 }
 
 float CPlaceable::GetHeading() const {
     if (!m_matrix) {
-        return m_placement.m_fHeading;
+        return m_placement.m_heading;
     }
 
     const auto& fwd = m_matrix->GetForward();
@@ -144,8 +144,8 @@ void CPlaceable::RemoveMatrix() {
     const auto& vecForward = m_matrix->GetForward();
     auto fHeading = std::atan2(-vecForward.x, vecForward.y);
 
-    m_placement.m_vPosn = m_matrix->GetPosition();
-    m_placement.m_fHeading = fHeading;
+    m_placement.m_translate = m_matrix->GetPosition();
+    m_placement.m_heading = fHeading;
 
     m_matrix->m_pOwner = nullptr;
     gMatrixList.MoveToFreeList(m_matrix);
@@ -180,8 +180,8 @@ void CPlaceable::SetMatrix(CMatrix& matrix) {
             auto& vecForward = matrix.GetForward();
             auto fHeading = std::atan2(-vecForward.x, vecForward.y);
 
-            m_placement.m_vPosn = matrix.GetPosition();
-            m_placement.m_fHeading = fHeading;
+            m_placement.m_translate = matrix.GetPosition();
+            m_placement.m_heading = fHeading;
             return;
         }
         CPlaceable::AllocateMatrix();
@@ -220,7 +220,7 @@ void CPlaceable::FreeStaticMatrix() {
 
 void CPlaceable::GetOrientation(float& x, float& y, float& z) {
     if (!m_matrix) {
-        z = m_placement.m_fHeading;
+        z = m_placement.m_heading;
         return;
     }
 

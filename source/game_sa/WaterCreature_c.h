@@ -34,7 +34,7 @@ public:
     float            m_fCurSpeed;
     WaterCreature_c* m_pFollowedCreature;
     CVector          m_vecOffsetFromFollowed;
-    float            m_fHeading;
+    float            m_heading;
     bool             m_bChangedDir;
 
 public:

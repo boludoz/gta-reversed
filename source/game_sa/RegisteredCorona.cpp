@@ -15,12 +15,12 @@ void CRegisteredCorona::Update() {
 //! Calculate the position to use for rendering
 auto CRegisteredCorona::GetPosition() const -> CVector {
     if (!m_pAttachedTo) {
-        return m_vPosn;
+        return m_translate;
     }
     if (m_pAttachedTo->GetType() == ENTITY_TYPE_VEHICLE && m_pAttachedTo->AsVehicle()->IsSubBike()) {
-        return m_pAttachedTo->AsBike()->m_mLeanMatrix.TransformPoint(m_vPosn);
+        return m_pAttachedTo->AsBike()->m_mLeanMatrix.TransformPoint(m_translate);
     }
-    return m_pAttachedTo->GetMatrix().TransformPoint(m_vPosn);
+    return m_pAttachedTo->GetMatrix().TransformPoint(m_translate);
 }
 
 auto CRegisteredCorona::CalculateIntensity(float scrZ, float farClip) const -> float {

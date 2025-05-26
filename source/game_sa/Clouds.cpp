@@ -727,8 +727,8 @@ void CClouds::RenderSkyPolys() {
         pos = TheCamera.m_matrix->GetPosition();
         norm = TheCamera.m_matrix->GetForward();
     } else {
-        pos = TheCamera.m_placement.m_vPosn;
-        float fHeading = TheCamera.m_placement.m_fHeading;
+        pos = TheCamera.m_placement.m_translate;
+        float fHeading = TheCamera.m_placement.m_heading;
         norm.x = -sin(fHeading);
         norm.y = cos(fHeading);
     }

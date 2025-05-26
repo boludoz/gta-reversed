@@ -6,7 +6,7 @@ class CVehicle;
 
 class CStoredCar {
 public:
-    CVector m_vPosn;
+    CVector m_translate;
     uint32  m_nHandlingFlags;
     uint8   m_nStoredCarFlags;
     uint8   _pad0;

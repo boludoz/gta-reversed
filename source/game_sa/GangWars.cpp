@@ -441,7 +441,7 @@ bool CGangWars::PickStreamedInPedForThisGang(eGangID gangId, int32& outPedId) {
     if (groupId <= 0)
         return false;
 
-    auto& x = *reinterpret_cast<int32*>(&CGarages::aCarsInSafeHouse[0][0].m_vPosn.x); // ?
+    auto& x = *reinterpret_cast<int32*>(&CGarages::aCarsInSafeHouse[0][0].m_translate.x); // ?
     for (auto i = 0; i < numPeds; i++) {
         x = (x + 1) % numPeds;
         outPedId = CPopulation::GetPedGroupModelId(groupId, x);

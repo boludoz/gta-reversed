@@ -175,7 +175,7 @@ bool CGarage::IsHideOut() const {
 bool CGarage::IsGarageEmpty() {
     return plugin::CallMethodAndReturn<bool, 0x44A9C0, CGarage*>(this);
 
-    CVector cornerA = { m_fLeftCoord, m_fFrontCoord, m_vPosn.z };
+    CVector cornerA = { m_fLeftCoord, m_fFrontCoord, m_translate.z };
     CVector cornerB = { m_fRightCoord, m_fBackCoord, m_fTopZ   };
 
     int16 outCount[2];
@@ -232,7 +232,7 @@ void CSaveGarage::CopyGarageIntoSaveGarage(Const CGarage& g) {
     m_nType         = g.m_nType;
     m_nDoorState    = g.m_nDoorState;
     m_nFlags        = g.m_nFlags;
-    m_vPosn         = g.m_vPosn;
+    m_translate         = g.m_translate;
     m_vDirectionA   = g.m_vDirectionA;
     m_vDirectionB   = g.m_vDirectionB;
     m_fTopZ         = g.m_fTopZ;
@@ -253,7 +253,7 @@ void CSaveGarage::CopyGarageOutOfSaveGarage(CGarage& g) const {
     g.m_nType         = m_nType;
     g.m_nDoorState    = m_nDoorState;
     g.m_nFlags        = m_nFlags;
-    g.m_vPosn         = m_vPosn;
+    g.m_translate         = m_translate;
     g.m_vDirectionA   = m_vDirectionA;
     g.m_vDirectionB   = m_vDirectionB;
     g.m_fTopZ         = m_fTopZ;

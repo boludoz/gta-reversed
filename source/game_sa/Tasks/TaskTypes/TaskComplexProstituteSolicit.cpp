@@ -88,7 +88,7 @@ CTask* CTaskComplexProstituteSolicit::CreateSubTask(eTaskType taskType, CPed* pr
         p_m_pos = &ped->m_matrix->m_pos;
         if (!ped->m_matrix)
             p_m_pos = &ped->m_placement;
-        v26 = p_m_pos->m_vPosn.x - v24.x;
+        v26 = p_m_pos->m_translate.x - v24.x;
         if (v14 | v15) {
             v16 = &v25;
             v17 = &v27;

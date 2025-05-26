@@ -187,10 +187,10 @@ public:
     void DoCamBump(float horizontal, float vertical);
     void Finalise_DW_CineyCams(const CVector& src, const CVector& dest, float roll, float fov, float nearClip, float shakeDegree);
     void GetCoreDataForDWCineyCamMode(CEntity*& entity, CVehicle*& vehicle, CVector& dest, CVector& src, CVector& targetUp, CVector& targetRight, CVector& targetFwd, CVector& targetVel, float& targetSpeed, CVector& targetAngVel, float& targetAngSpeed, CColSphere& colSphere);
-    void GetLookFromLampPostPos(CEntity* target, CPed* cop, const CVector& vecTarget, const CVector& vecSource);
+    bool GetLookFromLampPostPos(CEntity* pTargetEntity, CPed* pCopPed, CVector& vecTarget, CVector& vecSource);
     void GetVectorsReadyForRW();
     CEntity *Get_TwoPlayer_AimVector(CVector&);
-    bool IsTimeToExitThisDWCineyCamMode(int32 camId, const CVector& src, const CVector& dst, float t, bool lineOfSightCheck);
+    bool IsTimeToExitThisDWCineyCamMode(int32 cameraId, CVector* sourcePos, CVector* destPos, float timeParam, bool performLineOfSightCheck);
     void KeepTrackOfTheSpeed(const CVector&, const CVector&, const CVector&, const float&, const float&, const float&);
     void LookBehind();
     void LookRight(bool bLookRight);

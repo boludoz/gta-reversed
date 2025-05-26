@@ -18,7 +18,7 @@ constexpr auto SKIDMARK_NUM_PARTS{ 16u };
  * Doesn't exist in Android IDB
  */
 struct CSkidmark {
-    CVector        m_vPosn[SKIDMARK_NUM_PARTS];
+    CVector        m_translate[SKIDMARK_NUM_PARTS];
     float          m_partDirX[SKIDMARK_NUM_PARTS];
     float          m_partDirY[SKIDMARK_NUM_PARTS];
     uint32         m_nId;                       // Unique ID, usually the vehicle pointer
@@ -30,7 +30,7 @@ struct CSkidmark {
     eSkidmarkState m_nState;
     bool           m_bActive;
 
-    CVector GetPartPosn(unsigned i) const { return m_vPosn[i]; }
+    CVector GetPartPosn(unsigned i) const { return m_translate[i]; }
     CVector GetLastPartPosn() const { return GetPartPosn(m_nNumParts); }
     CVector GetFirstPartPosn() const { return GetPartPosn(0); }
     CSphere GetBoundingSphere() const;

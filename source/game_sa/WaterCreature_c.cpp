@@ -60,20 +60,20 @@ bool WaterCreature_c::Init(int32 nType, CVector* vecPos, WaterCreature_c* parent
 
         m_vecOffsetFromFollowed = vecDirection * fDist;
         m_pObject->SetPosn(*vecPos + m_vecOffsetFromFollowed);
-        m_fHeading = parent->GetObject()->GetHeading();
+        m_heading = parent->GetObject()->GetHeading();
         m_fDefaultSpeed = CGeneral::GetRandomNumberInRange(info.m_fMinSpeed, parent->m_fDefaultSpeed);
     }
     else
     {
         m_vecOffsetFromFollowed.Set(0.0F, 0.0F, 0.0F);
         m_pObject->SetPosn(*vecPos);
-        m_fHeading = CGeneral::GetRandomNumberInRange(-PI, PI);
+        m_heading = CGeneral::GetRandomNumberInRange(-PI, PI);
         m_fDefaultSpeed = CGeneral::GetRandomNumberInRange(info.m_fMinSpeed, info.m_fMaxSpeed);
     }
 
     m_ucTargetSwimSpeed = 0;
     m_bChangedDir = true;
-    m_pObject->SetHeading(m_fHeading);
+    m_pObject->SetHeading(m_heading);
     m_pObject->UpdateRW();
     m_pObject->UpdateRwFrame();
 
@@ -137,7 +137,7 @@ void WaterCreature_c::Update(float fTimeStep)
         {
             if (CGeneral::GetRandomNumberInRange(0.0F, 1.0F) < pInfo.m_fChanceToRandomizeRotation)
             {
-                m_fHeading = CGeneral::GetRandomNumberInRange(-PI, PI);
+                m_heading = CGeneral::GetRandomNumberInRange(-PI, PI);
                 bMove = true;
             }
         }
@@ -153,7 +153,7 @@ void WaterCreature_c::Update(float fTimeStep)
                 CEntity* entity;
                 if (CWorld::ProcessLineOfSight(vecPos, vecTargetPos, colPoint, entity, true, false, false, false, false, false, false, false)) {
                     const auto fHeading = CGeneral::GetRadianAngleBetweenPoints(colPoint.m_vecNormal.x, colPoint.m_vecNormal.y, 0.0F, 0.0F);
-                    m_fHeading = CGeneral::LimitRadianAngle(fHeading);
+                    m_heading = CGeneral::LimitRadianAngle(fHeading);
                     m_bChangedDir = true;
                 }
                 else
@@ -164,16 +164,16 @@ void WaterCreature_c::Update(float fTimeStep)
         }
 
         auto fHeading = m_pObject->GetHeading();
-        if (m_fHeading + PI < fHeading)
+        if (m_heading + PI < fHeading)
         {
-            m_fHeading += TWO_PI;
+            m_heading += TWO_PI;
         }
-        else if (m_fHeading - PI > fHeading)
+        else if (m_heading - PI > fHeading)
         {
-            m_fHeading -= TWO_PI;
+            m_heading -= TWO_PI;
         }
 
-        const auto fHeadingDiff = m_fHeading - fHeading;
+        const auto fHeadingDiff = m_heading - fHeading;
         if (fabs(fHeadingDiff) > pInfo.m_fMaxHeadingChange)
         {
             if (fHeadingDiff < 0.0F)
@@ -204,9 +204,9 @@ void WaterCreature_c::Update(float fTimeStep)
                 m_wSpeedChangeTotalTime = CGeneral::GetRandomNumberInRange(2000, 4500);
 
                 const auto fNewHeading = CGeneral::GetRadianAngleBetweenPoints(vecSwimDir.x, vecSwimDir.y, 0.0F, 0.0F);
-                m_fHeading = CGeneral::LimitRadianAngle(fNewHeading);
+                m_heading = CGeneral::LimitRadianAngle(fNewHeading);
                 if (IsSmallFish())
-                    m_pObject->SetHeading(m_fHeading);
+                    m_pObject->SetHeading(m_heading);
             }
         }
 

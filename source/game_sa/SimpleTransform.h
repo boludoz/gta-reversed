@@ -11,11 +11,11 @@
 
 class CSimpleTransform {
 public:
-    CSimpleTransform() : m_vPosn(), m_fHeading(0.0F) {}
+    CSimpleTransform() : m_translate(), m_heading(0.0F) {}
 
 public:
-    CVector m_vPosn;
-    float m_fHeading;
+    CVector m_translate;
+    float m_heading;
 
     void UpdateRwMatrix(RwMatrix* out);
     void Invert(const CSimpleTransform& base);

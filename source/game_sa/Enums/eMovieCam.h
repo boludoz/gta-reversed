@@ -1,3 +1,5 @@
+#pragma once
+
 // Resa 2025
 
 enum eMovieCam : __int32

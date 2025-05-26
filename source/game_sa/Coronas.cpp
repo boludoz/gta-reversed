@@ -553,7 +553,7 @@ void CCoronas::RegisterCorona(uint32 id, CEntity* attachTo, uint8 red, uint8 gre
 
     // Update corona properties
     corona->m_Color                = CRGBA{ red, green, blue, adjustedAlpha };
-    corona->m_vPosn                = coronaPos;
+    corona->m_translate                = coronaPos;
     corona->m_fSize                = radius;
     corona->m_fFarClip             = farClip;
     corona->m_fNearClip            = nearClip;
@@ -588,7 +588,7 @@ void CCoronas::RegisterCorona(uint32 id, CEntity* attachTo, uint8 red, uint8 gre
 void CCoronas::UpdateCoronaCoors(uint32 id, const CVector& posn, float farClip, float angle) {
     if (sq(farClip) >= (TheCamera.GetPosition() - posn).SquaredMagnitude2D()) {
         auto* corona = GetCoronaByID(id);
-        corona->m_vPosn = posn;
+        corona->m_translate = posn;
         corona->m_fAngle = angle;
     }
 }

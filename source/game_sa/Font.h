@@ -17,7 +17,7 @@ class CSprite2d;
 struct CFontChar {
     uint8     m_cLetter;
     uint8     m_dLetter;
-    CVector2D m_vPosn;
+    CVector2D m_translate;
     float     m_fWidth;
     float     m_fHeight;
     CRGBA     m_color;
@@ -35,7 +35,7 @@ public:
     void Set(const CFontChar& setup) {
         m_cLetter        = setup.m_cLetter;
         m_dLetter        = setup.m_dLetter;
-        m_vPosn          = setup.m_vPosn;
+        m_translate          = setup.m_translate;
         m_fWidth         = setup.m_fWidth;
         m_fHeight        = setup.m_fHeight;
         m_color          = setup.m_color;

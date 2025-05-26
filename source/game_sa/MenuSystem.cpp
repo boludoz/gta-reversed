@@ -92,8 +92,8 @@ uint8 CMenuSystem::GetCarColourFromGrid(MenuId id, uint8 colorId) {
 // 0x581CB0, unused
 void CMenuSystem::GetMenuPosition(MenuId id, float* outX, float* outY) {
     assert(outX && outY);
-    *outX = MenuNumber[id]->m_vPosn.x;
-    *outY = MenuNumber[id]->m_vPosn.y;
+    *outX = MenuNumber[id]->m_translate.x;
+    *outY = MenuNumber[id]->m_translate.y;
 }
 
 // 0x5807C0
@@ -274,7 +274,7 @@ void CMenuSystem::DisplayStandardMenu(MenuId id, bool bBrightFont) {
         menuWidth += SCREEN_STRETCH_X(20);
         menuHeight = SCREEN_STRETCH_Y(menuHeight) + menu->m_nNumRows * SCREEN_STRETCH_Y(16.0f);
 
-        CRect rect(menu->m_vPosn.x, menu->m_vPosn.y, menu->m_vPosn.x + menuWidth, menu->m_vPosn.y + menuHeight);
+        CRect rect(menu->m_translate.x, menu->m_translate.y, menu->m_translate.x + menuWidth, menu->m_translate.y + menuHeight);
         FrontEndMenuManager.DrawWindow(rect, menu->m_szTitle, windowOpacity, CRGBA(0, 0, 0, 190), false, true);
     }
     CFont::SetFontStyle(eFontStyle::FONT_SUBTITLES);
@@ -303,8 +303,8 @@ void CMenuSystem::DisplayStandardMenu(MenuId id, bool bBrightFont) {
             xOffset += menu->m_afColumnWidth[i];
         }
 
-        float textX = menu->m_vPosn.x + SCREEN_STRETCH_X(10.0f) + xOffset;
-        float textY = menu->m_vPosn.y + SCREEN_STRETCH_Y(20.0f);
+        float textX = menu->m_translate.x + SCREEN_STRETCH_X(10.0f) + xOffset;
+        float textY = menu->m_translate.y + SCREEN_STRETCH_Y(20.0f);
         switch (menu->m_anColumnAlignment[column]) {
         case eFontAlignment::ALIGN_CENTER:
             textX += menu->m_afColumnWidth[column] / 2.0f;
@@ -374,8 +374,8 @@ void CMenuSystem::DisplayStandardMenu(MenuId id, bool bBrightFont) {
                 xOffset += menu->m_afColumnWidth[i];
             }
 
-            float textX = menu->m_vPosn.x + SCREEN_STRETCH_X(10.0f) + xOffset;
-            float textY = menu->m_vPosn.y + fBaseY;
+            float textX = menu->m_translate.x + SCREEN_STRETCH_X(10.0f) + xOffset;
+            float textY = menu->m_translate.y + fBaseY;
             switch (menu->m_anColumnAlignment[column]) {
             case eFontAlignment::ALIGN_CENTER:
                 textX += menu->m_afColumnWidth[column] / 2.0f;
@@ -401,10 +401,10 @@ void CMenuSystem::DisplayGridMenu(MenuId id, bool bFade) {
     auto columnWidth = menu->m_afColumnWidth[0];
     if (menu->m_bColumnBackground) {
         CRect rect;
-        rect.left   = menu->m_vPosn.x;
-        rect.bottom    = menu->m_vPosn.y;
-        rect.right  = (float)menu->m_nNumColumns * columnWidth + menu->m_vPosn.x;
-        rect.top = (float)menu->m_nNumColumns * columnWidth + menu->m_vPosn.y;
+        rect.left   = menu->m_translate.x;
+        rect.bottom    = menu->m_translate.y;
+        rect.right  = (float)menu->m_nNumColumns * columnWidth + menu->m_translate.x;
+        rect.top = (float)menu->m_nNumColumns * columnWidth + menu->m_translate.y;
         FrontEndMenuManager.DrawWindow(rect, nullptr, bFade ? 0 : 120, { 0, 0, 0, 190 }, false, true);
     }
 
@@ -414,10 +414,10 @@ void CMenuSystem::DisplayGridMenu(MenuId id, bool bFade) {
             // white border
             if (index == menu->m_nSelectedRow) {
                 CRect rect;
-                rect.left   = (float)r * columnWidth + menu->m_vPosn.x;
-                rect.bottom    = (float)c * columnWidth + menu->m_vPosn.y;
-                rect.right  = ((float)r + 1.0f) * columnWidth + menu->m_vPosn.x;
-                rect.top = ((float)c + 1.0f) * columnWidth + menu->m_vPosn.y;
+                rect.left   = (float)r * columnWidth + menu->m_translate.x;
+                rect.bottom    = (float)c * columnWidth + menu->m_translate.y;
+                rect.right  = ((float)r + 1.0f) * columnWidth + menu->m_translate.x;
+                rect.top = ((float)c + 1.0f) * columnWidth + menu->m_translate.y;
                 CSprite2d::DrawRect(rect, { 225, 225, 225, 255 });
             }
 
@@ -425,10 +425,10 @@ void CMenuSystem::DisplayGridMenu(MenuId id, bool bFade) {
             auto  colorIndex = GetCarColourFromGrid(id, index);
             auto& color = CVehicleModelInfo::ms_vehicleColourTable[colorIndex];
             CRect rect;
-            rect.left   = (float)r * columnWidth + menu->m_vPosn.x + SCREEN_STRETCH_X(3.0f);
-            rect.bottom    = (float)c * columnWidth + menu->m_vPosn.y + SCREEN_STRETCH_Y(3.0f);
-            rect.right  = (float)r * columnWidth + menu->m_vPosn.x + columnWidth - SCREEN_STRETCH_X(3.0f);
-            rect.top = (float)c * columnWidth + menu->m_vPosn.y + columnWidth - SCREEN_STRETCH_Y(3.0f);
+            rect.left   = (float)r * columnWidth + menu->m_translate.x + SCREEN_STRETCH_X(3.0f);
+            rect.bottom    = (float)c * columnWidth + menu->m_translate.y + SCREEN_STRETCH_Y(3.0f);
+            rect.right  = (float)r * columnWidth + menu->m_translate.x + columnWidth - SCREEN_STRETCH_X(3.0f);
+            rect.top = (float)c * columnWidth + menu->m_translate.y + columnWidth - SCREEN_STRETCH_Y(3.0f);
             CSprite2d::DrawRect(rect, { color.r, color.g, color.b, 255 });
             index++;
         }
@@ -507,7 +507,7 @@ MenuId CMenuSystem::CreateNewMenu(eMenuType type, const char* title, float x, fl
         menu->m_nSelectedRow = 0;
         menu->m_abColumnInteractive[INTERACTIVE_DEFAULT] = interactive;
         menu->m_abColumnInteractive[INTERACTIVE_DPAD] = true; // DPAD
-        menu->m_vPosn = { x, y };
+        menu->m_translate = { x, y };
         menu->m_bColumnBackground = background != 0;
         if (title) {
             strcpy_s(menu->m_szTitle, title);
@@ -533,7 +533,7 @@ MenuId CMenuSystem::CreateNewMenu(eMenuType type, const char* title, float x, fl
         menu->m_abColumnInteractive[INTERACTIVE_DEFAULT] = interactive;
         menu->m_abColumnInteractive[INTERACTIVE_DPAD] = true;
         menu->m_nNumColumns = std::min(columns, (uint8)8);
-        menu->m_vPosn = { x, y };
+        menu->m_translate = { x, y };
         menu->m_nAcceptedRow = MENU_UNDEFINED;
         menu->m_nSelectedRow = 0;
         menu->m_nNumRows = menu->m_nNumColumns * menu->m_nNumColumns;

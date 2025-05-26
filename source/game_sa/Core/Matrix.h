@@ -71,11 +71,11 @@ public:
     }
 private:
     // RwV3d-like:
-    CVector m_right;        // 0x0  // RW: Right
+    CVector m_right;        // 0x0  // RW: Right - x(x, y, z)
     uint32  flags;          // 0xC
-    CVector m_forward;      // 0x10 // RW: Up
+    CVector m_forward;      // 0x10 // RW: Up - y(x, y, z)
     uint32  pad1;           // 0x1C
-    CVector m_up;           // 0x20 // RW: At
+    CVector m_up;           // 0x20 // RW: At - z(x, y, z)
     uint32  pad2;           // 0x2C
     CVector m_pos;          // 0x30
     uint32  pad3;           // 0x3C

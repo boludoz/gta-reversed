@@ -2767,35 +2767,35 @@ void CWorld::RepositionCertainDynamicObjects() {
 }
 
 // 0x56BA00
-bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CColPoint& outColPoint, CEntity*& outEntity, bool buildings, bool vehicles, bool peds, bool objects, bool dummies, bool doSeeThroughCheck, bool doCameraIgnoreCheck, bool doShootThroughCheck) {
-    assert(!origin.HasNanOrInf() && !target.HasNanOrInf()); // We're getting random nan/inf's from somewhere, so let's try to root cause it...
+bool CWorld::ProcessLineOfSight(const CVector& vecStart, const CVector& vecEnd, CColPoint& colPoint, CEntity*& refEntityPtr, bool bCheckBuildings, bool bCheckVehicles, bool bCheckPeds, bool bCheckObjects, bool bCheckDummies, bool bSeeThroughStuff, bool bIgnoreSomeObjectsForCamera, bool bShootThroughStuff) {
+    assert(!vecStart.HasNanOrInf() && !vecEnd.HasNanOrInf()); // We're getting random nan/inf's from somewhere, so let's try to root cause it...
 
-    outEntity = nullptr;
+    refEntityPtr = nullptr;
 
-    const int32 originSectorX = GetSectorX(origin.x);
-    const int32 originSectorY = GetSectorY(origin.y);
-    const int32 targetSectorX = GetSectorX(target.x);
-    const int32 targetSectorY = GetSectorY(target.y);
+    const int32 originSectorX = GetSectorX(vecStart.x);
+    const int32 originSectorY = GetSectorY(vecStart.y);
+    const int32 targetSectorX = GetSectorX(vecEnd.x);
+    const int32 targetSectorY = GetSectorY(vecEnd.y);
 
     IncrementCurrentScanCode();
 
     float touchDist{1.f};
-    const auto ProcessSector = [&, line = CColLine{origin, target}](int32 x, int32 y) {
+    const auto ProcessSector = [&, line = CColLine{vecStart, vecEnd}](int32 x, int32 y) {
         return ProcessLineOfSightSector(
             *GetSector(x, y),
             *GetRepeatSector(x, y),
             line,
-            outColPoint,
+            colPoint,
             touchDist,
-            outEntity,
-            buildings,
-            vehicles,
-            peds,
-            objects,
-            dummies,
-            doSeeThroughCheck,
-            doCameraIgnoreCheck,
-            doShootThroughCheck
+            refEntityPtr,
+            bCheckBuildings,
+            bCheckVehicles,
+            bCheckPeds,
+            bCheckObjects,
+            bCheckDummies,
+            bSeeThroughStuff,
+            bIgnoreSomeObjectsForCamera,
+            bShootThroughStuff
         );
     };
 
@@ -2823,16 +2823,16 @@ bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CC
         }
     }
     else {  // Different x and y sectors
-        float displacement = (target.y - origin.y) / (target.x - origin.x);
+        float displacement = (vecEnd.y - vecStart.y) / (vecEnd.x - vecStart.x);
 
         // TODO: Make this more readable
         //       Maybe adding some debug module for this might be useful?
         //       To like draw the sectors iterated or something (Would give us a better understanding of how it works)
 
         int32 startY, endY, x, y;
-        if (origin.x < target.x) { // Step from left to right
+        if (vecStart.x < vecEnd.x) { // Step from left to right
             startY = originSectorY;
-            endY = GetSectorY((GetSectorPosX(originSectorX + 1) - origin.x) * displacement + origin.y);
+            endY = GetSectorY((GetSectorPosX(originSectorX + 1) - vecStart.x) * displacement + vecStart.y);
 
             if (originSectorY < endY) {
                 for (y = originSectorY; y <= endY; y++)
@@ -2845,7 +2845,7 @@ bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CC
 
             for (x = originSectorX + 1; x < targetSectorX; x++) {
                 startY = endY;
-                endY = GetSectorY((GetSectorPosX(x + 1) - origin.x) * displacement + origin.y);
+                endY = GetSectorY((GetSectorPosX(x + 1) - vecStart.x) * displacement + vecStart.y);
                 if (startY < endY) {
                     for (y = startY; y <= endY; y++)
                         ProcessSector(x, y);
@@ -2870,7 +2870,7 @@ bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CC
         }
         else { // Step from right to left
             startY = originSectorY;
-            endY = GetSectorY((GetSectorPosX(originSectorX) - origin.x) * displacement + origin.y);
+            endY = GetSectorY((GetSectorPosX(originSectorX) - vecStart.x) * displacement + vecStart.y);
             if (startY < endY) {
                 for (y = startY; y <= endY; y++)
                     ProcessSector(originSectorX, y);
@@ -2882,7 +2882,7 @@ bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CC
 
             for (x = originSectorX - 1; x > targetSectorX; x--) {
                 startY = endY;
-                endY = GetSectorY((GetSectorPosX(x) - origin.x) * displacement + origin.y);
+                endY = GetSectorY((GetSectorPosX(x) - vecStart.x) * displacement + vecStart.y);
                 if (startY < endY) {
                     for (y = startY; y <= endY; y++)
                         ProcessSector(x, y);
@@ -2906,11 +2906,10 @@ bool CWorld::ProcessLineOfSight(const CVector& origin, const CVector& target, CC
         }
     }
     if (touchDist < 1.f) {
-        assert(outEntity); // If there was a collision there must be an entity as well!
+        assert(refEntityPtr); // If there was a collision there must be an entity as well!
         return true;
     }
     return false;
-    //return touchDist < 1.f;
 }
 
 // 0x4072E0

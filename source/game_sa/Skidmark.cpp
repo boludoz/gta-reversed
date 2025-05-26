@@ -7,7 +7,7 @@
 
 void CSkidmark::Init(uint32 id, CVector posn, eSkidmarkType type, const bool* bloodState) {
     m_nId         = id;
-    m_vPosn[0]    = posn;
+    m_translate[0]    = posn;
     m_partDirX[0] = 0.0f;
     m_partDirY[0] = 0.0f;
     m_bActive     = true;
@@ -109,7 +109,7 @@ void CSkidmark::Render() const {
     };
 
     for (unsigned part = 0; part <= m_nNumParts; part++) {
-        const CVector posn = m_vPosn[part];
+        const CVector posn = m_translate[part];
         const CVector dir = { m_partDirX[part], m_partDirY[part], 0.0f };
         const CVector pos[] = {
             posn + dir + CVector{ {}, {}, 0.1f },
@@ -141,7 +141,7 @@ void CSkidmark::RegisterNewPart(CVector posn, CVector2D dir, float length, bool*
     if ((m_nType == eSkidmarkType::BLOODY) == *bloodState) {
         m_bActive = true;
         if (CTimer::GetTimeInMS() - m_lastDisappearTimeUpdateMs <= 100) {
-            m_vPosn[m_nNumParts] = posn; // Update existing, because of low delta time
+            m_translate[m_nNumParts] = posn; // Update existing, because of low delta time
         } else {
             m_lastDisappearTimeUpdateMs = CTimer::GetTimeInMS();
             if (m_nNumParts >= SKIDMARK_NUM_PARTS - 1) { // The 0th "part" isn't considered as an actual part, so at most we can have this many
@@ -151,9 +151,9 @@ void CSkidmark::RegisterNewPart(CVector posn, CVector2D dir, float length, bool*
                 *bloodState = false;
             } else {
                 m_nNumParts++;
-                m_vPosn[m_nNumParts] = posn;
+                m_translate[m_nNumParts] = posn;
 
-                const CVector prevPosn = m_vPosn[m_nNumParts - 1];
+                const CVector prevPosn = m_translate[m_nNumParts - 1];
                 CVector2D dirToPrevPart = {
                     posn.y - prevPosn.y, // Swapped intentionally, unsure why though.
                     prevPosn.x - posn.x

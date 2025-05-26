@@ -4442,9 +4442,9 @@ void CVehicle::DoSunGlare() {
                                   : &physical.entity.placeable.m_SimpleCoors;
 
     RwV3d* camPos = dword_B6F03C ? (RwV3d*)(dword_B6F03C + 48) : &stru_B6F02C;
-    toCamera.x = camPos->x - pos->m_vPosn.x;
-    toCamera.y = camPos->y - pos->m_vPosn.y; 
-    toCamera.z = camPos->z - pos->m_vPosn.z;
+    toCamera.x = camPos->x - pos->m_translate.x;
+    toCamera.y = camPos->y - pos->m_translate.y; 
+    toCamera.z = camPos->z - pos->m_translate.z;
 
     // Calculate light direction
     float dist = sqrt(toCamera.x * toCamera.x + toCamera.z * toCamera.z + toCamera.y * toCamera.y);
